@@ -8,7 +8,7 @@ Tokidex is a macOS terminal UI for inspecting local Codex token usage.
 
 Tokidex reads your local Codex state and shows token usage by session in a small
 terminal UI. It is local-only: no network calls, no Codex auth token access, and
-no billing guesses.
+no billing guesses. Use `--privacy` for public screenshots.
 
 ## Links
 
@@ -19,7 +19,7 @@ no billing guesses.
 
 ```sh
 cargo install tokidex
-tokidex --range today
+tokidex --privacy --range today
 ```
 
 ## X / Twitter
@@ -29,11 +29,11 @@ I made `tokidex`, a tiny macOS TUI for inspecting local Codex token usage.
 It reads Codex's local SQLite/JSONL state and shows token usage by session:
 today, last 7 days, or all history.
 
-Local-only: no network calls, no auth token access.
+Local-only: no network calls, no auth token access. Use `--privacy` for screenshots.
 
 ```sh
 cargo install tokidex
-tokidex --range today
+tokidex --privacy --range today
 ```
 
 GitHub: https://github.com/michaelmjhhhh/tokidex
@@ -54,11 +54,11 @@ I built Tokidex, a small Rust TUI for inspecting local Codex token usage on macO
 
 It reads Codex's local state files and shows usage by session, with today/week/all filters and search. When Codex JSONL token_count events are available, it breaks usage down into input, cached input, output, reasoning output, and total tokens.
 
-It is deliberately local-only: no network calls, no auth token access, and no billing guesses.
+It is deliberately local-only: no network calls, no auth token access, and no billing guesses. It also has a --privacy mode for screenshots/streams.
 
 Install:
 cargo install tokidex
-tokidex --range today
+tokidex --privacy --range today
 
 GitHub: https://github.com/michaelmjhhhh/tokidex
 crates.io: https://crates.io/crates/tokidex
@@ -71,11 +71,11 @@ I made Tokidex, a small Rust TUI for inspecting local Codex token usage on macOS
 
 It reads local Codex SQLite/JSONL state and shows token usage by session. You can switch between today, last 7 days, and all history; search sessions; and inspect token breakdowns when local token_count details are available.
 
-The tool is local-only: no network calls, no Codex auth token access, and no billing estimates.
+The tool is local-only: no network calls, no Codex auth token access, and no billing estimates. It has a --privacy mode for public screenshots.
 
 Install:
 cargo install tokidex
-tokidex --range today
+tokidex --privacy --range today
 
 GitHub: https://github.com/michaelmjhhhh/tokidex
 crates.io: https://crates.io/crates/tokidex
@@ -87,8 +87,8 @@ crates.io: https://crates.io/crates/tokidex
 I published Tokidex, a small macOS TUI for local Codex token usage:
 
 cargo install tokidex
-tokidex --range today
+tokidex --privacy --range today
 
-It is local-only: reads Codex SQLite/JSONL state, no network calls, no auth token access.
+It is local-only: reads Codex SQLite/JSONL state, no network calls, no auth token access. Use --privacy for screenshots.
 https://github.com/michaelmjhhhh/tokidex
 ```

@@ -19,6 +19,18 @@ impl DateRange {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PrivacyMode {
+    Off,
+    On,
+}
+
+impl PrivacyMode {
+    pub fn enabled(self) -> bool {
+        matches!(self, PrivacyMode::On)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct App {
     pub all_records: Vec<SessionRecord>,
@@ -28,10 +40,11 @@ pub struct App {
     pub search: String,
     pub search_mode: bool,
     pub status: String,
+    pub privacy: PrivacyMode,
 }
 
 impl App {
-    pub fn new(records: Vec<SessionRecord>, range: DateRange) -> Self {
+    pub fn new(records: Vec<SessionRecord>, range: DateRange, privacy: PrivacyMode) -> Self {
         let mut app = App {
             all_records: records,
             visible: Vec::new(),
@@ -40,6 +53,7 @@ impl App {
             search: String::new(),
             search_mode: false,
             status: String::new(),
+            privacy,
         };
         app.recompute();
         app
@@ -86,8 +100,54 @@ impl App {
     }
 
     pub fn latest_rate_limit(&self) -> Option<RateLimit> {
+        if self.privacy.enabled() {
+            return None;
+        }
         self.visible.iter().find_map(|record| record.rate_limit)
     }
+}
+
+pub fn display_title(record: &SessionRecord, index: usize, privacy: PrivacyMode) -> String {
+    if privacy.enabled() {
+        format!("Session {}", index + 1)
+    } else {
+        record.summary.title.clone()
+    }
+}
+
+pub fn display_id(record: &SessionRecord, privacy: PrivacyMode) -> String {
+    if !privacy.enabled() {
+        return record.summary.id.clone();
+    }
+
+    let id = &record.summary.id;
+    if id.len() <= 10 {
+        return "redacted".to_string();
+    }
+    format!("{}...{}", &id[..4], &id[id.len() - 4..])
+}
+
+pub fn display_cwd(record: &SessionRecord, privacy: PrivacyMode) -> String {
+    if privacy.enabled() {
+        last_path_component(&record.summary.cwd).unwrap_or_else(|| "redacted".to_string())
+    } else {
+        record.summary.cwd.clone()
+    }
+}
+
+pub fn display_rollout(record: &SessionRecord, privacy: PrivacyMode) -> String {
+    if privacy.enabled() {
+        "hidden in privacy mode".to_string()
+    } else {
+        record.summary.rollout_path.display().to_string()
+    }
+}
+
+fn last_path_component(path: &str) -> Option<String> {
+    std::path::Path::new(path)
+        .file_name()
+        .map(|name| name.to_string_lossy().to_string())
+        .filter(|name| !name.is_empty())
 }
 
 pub fn filter_records<'a>(

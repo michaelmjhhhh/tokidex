@@ -3,7 +3,9 @@ use std::path::Path;
 
 use rusqlite::Connection;
 use tempfile::TempDir;
-use tokidex::app::{DateRange, filter_records};
+use tokidex::app::{
+    DateRange, PrivacyMode, display_cwd, display_id, display_rollout, display_title, filter_records,
+};
 use tokidex::codex_store::{load_records, resolve_codex_home_from};
 
 fn create_state_db(codex_home: &Path) {
@@ -206,4 +208,40 @@ fn resolve_codex_home_prefers_cli_then_env_then_home_default() {
         resolve_codex_home_from(None, None, home.path()),
         home.path().join(".codex")
     );
+}
+
+#[test]
+fn privacy_display_redacts_sensitive_session_fields() {
+    let temp = TempDir::new().unwrap();
+    let codex_home = temp.path();
+    create_state_db(codex_home);
+
+    let rollout = codex_home.join("sessions/2026/05/14/rollout-019e-secret.jsonl");
+    insert_thread(
+        codex_home,
+        "019e1f50-9388-7cb2-9825-6a1eea43f79c",
+        &rollout,
+        1_700_000_000,
+        1_700_000_000,
+        10,
+        "gpt-5.5",
+        "Private client roadmap",
+        "/Users/example/Documents/Codex/private-client",
+    );
+
+    let records = load_records(codex_home).unwrap();
+    let record = &records[0];
+
+    assert_eq!(display_title(record, 0, PrivacyMode::On), "Session 1");
+    assert_eq!(
+        display_id(record, PrivacyMode::On),
+        "019e...f79c".to_string()
+    );
+    assert_eq!(display_cwd(record, PrivacyMode::On), "private-client");
+    assert_eq!(
+        display_rollout(record, PrivacyMode::On),
+        "hidden in privacy mode"
+    );
+    assert!(!display_cwd(record, PrivacyMode::On).contains("/Users/example"));
+    assert!(!display_rollout(record, PrivacyMode::On).contains("/Users/example"));
 }

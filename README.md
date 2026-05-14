@@ -54,6 +54,15 @@ Update an existing install:
 cargo install tokidex --force
 ```
 
+Use privacy mode before sharing screenshots or streaming:
+
+```sh
+tokidex --privacy --range all
+```
+
+Privacy mode hides full session titles, local paths, rollout JSONL paths, full
+session ids, and rate limit details. Token counts and model names remain visible.
+
 Remove an old local/path install, then reinstall from crates.io:
 
 ```sh
@@ -81,6 +90,7 @@ tokidex --range today
 
 `tokidex` is a local read-only viewer. It reads Codex's local SQLite and JSONL
 state files, never reads `auth.json`, and does not send usage data anywhere.
+For public screenshots, use `--privacy`.
 
 ## Keys
 

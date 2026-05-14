@@ -11,7 +11,7 @@ use crossterm::terminal::{
 };
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
-use tokidex::app::{App, DateRange};
+use tokidex::app::{App, DateRange, PrivacyMode};
 use tokidex::codex_store::{load_records, resolve_codex_home};
 
 #[derive(Debug, Parser)]
@@ -23,6 +23,8 @@ struct Cli {
     range: RangeArg,
     #[arg(long, default_value_t = 30)]
     refresh: u64,
+    #[arg(long)]
+    privacy: bool,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -49,7 +51,12 @@ fn main() -> Result<()> {
         eprintln!("{err:#}");
         Vec::new()
     });
-    let app = App::new(records, cli.range.into());
+    let privacy = if cli.privacy {
+        PrivacyMode::On
+    } else {
+        PrivacyMode::Off
+    };
+    let app = App::new(records, cli.range.into(), privacy);
     run_terminal(app, codex_home, Duration::from_secs(cli.refresh.max(1)))
 }
 

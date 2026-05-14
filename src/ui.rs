@@ -5,7 +5,7 @@ use ratatui::style::Color;
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap};
 
-use crate::app::App;
+use crate::app::{App, display_cwd, display_id, display_rollout, display_title};
 use crate::model::{RateLimit, SessionRecord, TokenUsage};
 
 pub fn draw(frame: &mut Frame<'_>, app: &App) {
@@ -51,7 +51,11 @@ fn draw_summary(frame: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App) {
             format_number(totals.output_tokens),
             format_number(totals.reasoning_output_tokens)
         )),
-        Line::from(rate),
+        Line::from(if app.privacy.enabled() {
+            "rate limit: hidden in privacy mode".to_string()
+        } else {
+            rate
+        }),
     ];
 
     frame.render_widget(
@@ -75,16 +79,17 @@ fn draw_body(frame: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App) {
             .alignment(Alignment::Center)
             .block(Block::default().borders(Borders::ALL).title("Sessions"));
         frame.render_widget(empty, columns[0]);
-        draw_detail(frame, columns[1], None);
+        draw_detail(frame, columns[1], None, app);
         return;
     }
 
     let items = app
         .visible
         .iter()
-        .map(|record| {
+        .enumerate()
+        .map(|(index, record)| {
             let model = record.summary.model.as_deref().unwrap_or("unknown");
-            let title = single_line(&record.summary.title);
+            let title = single_line(&display_title(record, index, app.privacy));
             ListItem::new(Line::from(vec![
                 Span::styled(
                     format_time(record.summary.updated_at),
@@ -121,10 +126,15 @@ fn draw_body(frame: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App) {
         &mut state,
     );
 
-    draw_detail(frame, columns[1], app.selected_record());
+    draw_detail(frame, columns[1], app.selected_record(), app);
 }
 
-fn draw_detail(frame: &mut Frame<'_>, area: ratatui::layout::Rect, record: Option<&SessionRecord>) {
+fn draw_detail(
+    frame: &mut Frame<'_>,
+    area: ratatui::layout::Rect,
+    record: Option<&SessionRecord>,
+    app: &App,
+) {
     let Some(record) = record else {
         frame.render_widget(
             Paragraph::new("Select a session")
@@ -145,17 +155,18 @@ fn draw_detail(frame: &mut Frame<'_>, area: ratatui::layout::Rect, record: Optio
         .rate_limit
         .map(format_rate_limit)
         .unwrap_or_else(|| "rate limit: unavailable".to_string());
+    let title = display_title(record, app.selected, app.privacy);
     let lines = vec![
         Line::from(vec![Span::styled(
-            single_line(&record.summary.title),
+            single_line(&title),
             Style::default().add_modifier(Modifier::BOLD),
         )]),
-        Line::from(format!("id: {}", record.summary.id)),
+        Line::from(format!("id: {}", display_id(record, app.privacy))),
         Line::from(format!(
             "model: {}",
             record.summary.model.as_deref().unwrap_or("unknown")
         )),
-        Line::from(format!("cwd: {}", record.summary.cwd)),
+        Line::from(format!("cwd: {}", display_cwd(record, app.privacy))),
         Line::from(format!(
             "created: {}",
             format_time(record.summary.created_at)
@@ -164,10 +175,7 @@ fn draw_detail(frame: &mut Frame<'_>, area: ratatui::layout::Rect, record: Optio
             "updated: {}",
             format_time(record.summary.updated_at)
         )),
-        Line::from(format!(
-            "rollout: {}",
-            record.summary.rollout_path.display()
-        )),
+        Line::from(format!("rollout: {}", display_rollout(record, app.privacy))),
         Line::from(""),
         Line::from(format!("source: {detail_state}")),
         Line::from(format!("total: {}", format_number(effective.total_tokens))),
@@ -184,7 +192,11 @@ fn draw_detail(frame: &mut Frame<'_>, area: ratatui::layout::Rect, record: Optio
             "reasoning output: {}",
             format_number(effective.reasoning_output_tokens)
         )),
-        Line::from(rate),
+        Line::from(if app.privacy.enabled() {
+            "rate limit: hidden in privacy mode".to_string()
+        } else {
+            rate
+        }),
     ];
 
     frame.render_widget(
@@ -196,14 +208,19 @@ fn draw_detail(frame: &mut Frame<'_>, area: ratatui::layout::Rect, record: Optio
 }
 
 fn draw_footer(frame: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App) {
+    let suffix = if app.privacy.enabled() {
+        "  privacy"
+    } else {
+        ""
+    };
     let prompt = if app.search_mode {
         format!("/{}", app.search)
     } else if app.search.is_empty() {
-        "q quit  ↑/↓ move  / search  d today  w week  a all  r refresh".to_string()
+        format!("q quit  ↑/↓ move  / search  d today  w week  a all  r refresh{suffix}")
     } else {
         format!(
-            "search: {}   q quit  ↑/↓ move  / edit  Esc clear  d/w/a range  r refresh",
-            app.search
+            "search: {}   q quit  ↑/↓ move  / edit  Esc clear  d/w/a range  r refresh{suffix}",
+            app.search,
         )
     };
     frame.render_widget(
