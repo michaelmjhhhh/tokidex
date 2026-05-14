@@ -26,16 +26,17 @@ cargo install tokidex
 tokidex --range today
 ```
 
-One-line install from this checkout:
+Update an existing install:
 
 ```sh
-./install.sh
+cargo install tokidex --force
 ```
 
-After installing:
+Remove an old local/path install, then reinstall from crates.io:
 
 ```sh
-tokidex --range today
+cargo uninstall tokidex
+cargo install tokidex
 ```
 
 Run without installing:
@@ -47,7 +48,7 @@ cargo run -- --range all
 cargo run -- --codex-home ~/.codex --range all
 ```
 
-Install locally:
+Install from a local checkout for development:
 
 ```sh
 cargo install --path .
