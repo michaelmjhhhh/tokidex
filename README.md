@@ -19,6 +19,13 @@ details are missing or malformed, the UI falls back to the SQLite total.
 
 ## Usage
 
+Install from crates.io:
+
+```sh
+cargo install tokidex
+tokidex --range today
+```
+
 One-line install from this checkout:
 
 ```sh

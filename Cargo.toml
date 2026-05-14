@@ -2,6 +2,13 @@
 name = "tokidex"
 version = "0.1.0"
 edition = "2024"
+description = "macOS terminal UI for inspecting local Codex token usage"
+license = "MIT"
+repository = "https://github.com/michaelmjhhhh/tokidex"
+homepage = "https://github.com/michaelmjhhhh/tokidex"
+readme = "README.md"
+keywords = ["codex", "tokens", "tui", "macos"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0"
