@@ -26,6 +26,15 @@ cargo install tokidex
 tokidex --range today
 ```
 
+`cargo install` places the binary in `~/.cargo/bin`. If `tokidex` is not found
+after installation, add Cargo's bin directory to your shell `PATH`:
+
+```sh
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+tokidex --range today
+```
+
 Update an existing install:
 
 ```sh
