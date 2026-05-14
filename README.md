@@ -1,9 +1,22 @@
 # tokidex
 
-`tokidex` is a macOS-only terminal UI for inspecting local Codex token usage.
+[![Crates.io](https://img.shields.io/crates/v/tokidex.svg)](https://crates.io/crates/tokidex)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![macOS only](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://github.com/michaelmjhhhh/tokidex)
 
-It reads local Codex state only. It does not call the network, read Codex auth
-tokens, or estimate billing cost.
+`tokidex` is a macOS terminal UI for inspecting local Codex token usage.
+
+It reads local Codex state only: no network calls, no Codex auth token access,
+and no billing guesses.
+
+## Highlights
+
+- View Codex token usage by session.
+- Switch between today, last 7 days, and all local history.
+- Inspect input, cached input, output, reasoning output, and total tokens when
+  local JSONL details are available.
+- Search sessions by title, model, cwd, or id.
+- Refresh in place from a small terminal UI.
 
 ## Data Sources
 
@@ -63,6 +76,11 @@ Install from a local checkout for development:
 cargo install --path .
 tokidex --range today
 ```
+
+## Safety
+
+`tokidex` is a local read-only viewer. It reads Codex's local SQLite and JSONL
+state files, never reads `auth.json`, and does not send usage data anywhere.
 
 ## Keys
 
