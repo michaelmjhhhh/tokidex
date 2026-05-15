@@ -9,7 +9,7 @@
 It reads Codex's local state only: no network calls, no Codex auth token access,
 and no billing guesses.
 
-![tokidex privacy mode screenshot](assets/tokidex-privacy.png)
+![tokidex privacy mode demo](assets/tokidex-demo.png)
 
 ## Install
 
