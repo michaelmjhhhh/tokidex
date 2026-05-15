@@ -1,6 +1,6 @@
 [package]
 name = "tokidex"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "macOS terminal UI for inspecting local Codex token usage"
 license = "MIT"
